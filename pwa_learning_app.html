@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6C63FF">
+    <title>Mi Progreso Educativo</title>
+    <link rel="manifest" href="#" id="manifest-placeholder">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6C63FF;
+            --secondary: #4CAF50;
+            --background: #E8EAF6;
+            --surface: #F5F7FA;
+            --text: #2C3E50;
+            --text-light: #7F8C8D;
+            --shadow: rgba(99, 99, 99, 0.2);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            padding-bottom: 80px;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .container {
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Claymorphism Cards */
+        .card {
+            background: var(--surface);
+            border-radius: 25px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 
+                8px 8px 16px var(--shadow),
+                -8px -8px 16px rgba(255, 255, 255, 0.8);
+        }
+
+        .card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        /* Progress Bars */
+        .progress-item {
+            margin-bottom: 20px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .progress-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .progress-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .progress-bar-label {
+            min-width: 120px;
+            font-size: 0.85rem;
+            color: var(--text);
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 20px;
+            background: #E0E0E0;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: inset 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 15px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        /* Materia Sections */
+        .materia-section {
+            margin-bottom: 15px;
+        }
+
+        .materia-header {
+            background: var(--primary);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 4px 4px 8px var(--shadow);
+            transition: transform 0.2s;
+        }
+
+        .materia-header:active {
+            transform: scale(0.98);
+        }
+
+        .materia-header h3 {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .materia-content {
+            display: none;
+            padding: 15px;
+            background: white;
+            border-radius: 0 0 20px 20px;
+            margin-top: -10px;
+            padding-top: 20px;
+        }
+
+        .materia-content.open {
+            display: block;
+        }
+
+        /* Radio Buttons */
+        .niveles-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .nivel-item {
+            position: relative;
+        }
+
+        .nivel-item input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .nivel-item label {
+            display: block;
+            padding: 12px;
+            background: var(--surface);
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 
+                4px 4px 8px var(--shadow),
+                -4px -4px 8px rgba(255, 255, 255, 0.8);
+        }
+
+        .nivel-item input[type="checkbox"]:checked + label {
+            background: var(--secondary);
+            color: white;
+            box-shadow: 
+                inset 4px 4px 8px rgba(0, 0, 0, 0.2),
+                inset -4px -4px 8px rgba(255, 255, 255, 0.1);
+        }
+
+        .nivel-item input[type="checkbox"]:disabled + label {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .nivel-item.completado label {
+            background: var(--secondary);
+            color: white;
+            box-shadow: 
+                inset 4px 4px 8px rgba(0, 0, 0, 0.2),
+                inset -4px -4px 8px rgba(255, 255, 255, 0.1);
+        }
+
+        .nivel-item.siguiente label {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--surface);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            box-shadow: 0 -4px 12px var(--shadow);
+            border-radius: 25px 25px 0 0;
+        }
+
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 15px;
+            margin: 0 5px;
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 
+                inset 3px 3px 6px rgba(0, 0, 0, 0.2),
+                inset -3px -3px 6px rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-icon {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+        }
+
+        .nav-label {
+            font-size: 0.7rem;
+        }
+
+        /* Install Button */
+        .install-btn {
+            display: none;
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 4px 4px 12px var(--shadow);
+            font-weight: 600;
+            z-index: 1000;
+        }
+
+        .install-btn.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(150px); }
+            to { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📚 Mi Progreso Educativo</h1>
+    </div>
+
+    <button class="install-btn" id="installBtn">📥 Instalar App</button>
+
+    <div class="container">
+        <!-- Vista 1: Dashboard -->
+        <div class="view active" id="view-dashboard">
+            <div id="dashboardContent"></div>
+        </div>
+
+        <!-- Vista 2: SCORM -->
+        <div class="view" id="view-scorm">
+            <div id="scormContent"></div>
+        </div>
+
+        <!-- Vista 3: Casos Prácticos -->
+        <div class="view" id="view-casos">
+            <div id="casosContent"></div>
+        </div>
+
+        <!-- Vista 4: Test de Evaluación -->
+        <div class="view" id="view-test">
+            <div id="testContent"></div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <div class="nav-item active" data-view="dashboard">
+            <div class="nav-icon">📊</div>
+            <div class="nav-label">Inicio</div>
+        </div>
+        <div class="nav-item" data-view="scorm">
+            <div class="nav-icon">📖</div>
+            <div class="nav-label">SCORM</div>
+        </div>
+        <div class="nav-item" data-view="casos">
+            <div class="nav-icon">💼</div>
+            <div class="nav-label">Casos</div>
+        </div>
+        <div class="nav-item" data-view="test">
+            <div class="nav-icon">✅</div>
+            <div class="nav-label">Test</div>
+        </div>
+    </nav>
+
+    <script>
+        // Datos de materias
+        const materias = [
+            'Fundamento de Hardware',
+            'Gestión de Base de Datos',
+            'Sistemas Operativos',
+            'Lenguaje de Marcas',
+            'Cloud Computing',
+            'Redes',
+            'Empleabilidad'
+        ];
+
+        const vistas = ['scorm', 'casos', 'test'];
+
+        // Inicializar progreso desde localStorage o crear nuevo
+        let progreso = JSON.parse(localStorage.getItem('progreso')) || {};
+
+        // Inicializar estructura si no existe
+        materias.forEach(materia => {
+            if (!progreso[materia]) {
+                progreso[materia] = {
+                    scorm: Array(10).fill(false),
+                    casos: Array(10).fill(false),
+                    test: Array(10).fill(false)
+                };
+            }
+        });
+
+        // Guardar progreso
+        function guardarProgreso() {
+            localStorage.setItem('progreso', JSON.stringify(progreso));
+            actualizarDashboard();
+        }
+
+        // Calcular progreso de una materia en una vista
+        function calcularProgreso(materia, vista) {
+            const completados = progreso[materia][vista].filter(x => x).length;
+            return { completados, total: 10, porcentaje: (completados / 10) * 100 };
+        }
+
+        // Actualizar Dashboard
+        function actualizarDashboard() {
+            const container = document.getElementById('dashboardContent');
+            container.innerHTML = '';
+
+            materias.forEach(materia => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                
+                const progresoScorm = calcularProgreso(materia, 'scorm');
+                const progresoCasos = calcularProgreso(materia, 'casos');
+                const progresoTest = calcularProgreso(materia, 'test');
+
+                card.innerHTML = `
+                    <h2>${materia}</h2>
+                    <div class="progress-bars">
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-label">SCORM</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progresoScorm.porcentaje}%">
+                                    ${progresoScorm.completados}/10
+                                </div>
+                            </div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-label">Casos Prácticos</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progresoCasos.porcentaje}%">
+                                    ${progresoCasos.completados}/10
+                                </div>
+                            </div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-label">Test</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progresoTest.porcentaje}%">
+                                    ${progresoTest.completados}/10
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+
+        // Crear contenido de vistas (SCORM, Casos, Test)
+        function crearVistaContenido(vista) {
+            const container = document.getElementById(`${vista}Content`);
+            container.innerHTML = '';
+
+            materias.forEach((materia, materiaIdx) => {
+                const section = document.createElement('div');
+                section.className = 'materia-section';
+                
+                const header = document.createElement('div');
+                header.className = 'materia-header';
+                header.innerHTML = `
+                    <h3>${materia}</h3>
+                    <span>▼</span>
+                `;
+                
+                const content = document.createElement('div');
+                content.className = 'materia-content';
+                
+                const grid = document.createElement('div');
+                grid.className = 'niveles-grid';
+                
+                // Calcular cuántos niveles están completados
+                const completados = progreso[materia][vista].filter(x => x).length;
+                
+                for (let i = 0; i < 10; i++) {
+                    const nivelItem = document.createElement('div');
+                    nivelItem.className = 'nivel-item';
+                    
+                    const id = `${vista}-${materiaIdx}-${i}`;
+                    const isCompletado = i < completados;
+                    const isSiguiente = i === completados;
+                    const isDisabled = i > completados;
+                    
+                    if (isCompletado) {
+                        nivelItem.classList.add('completado');
+                    } else if (isSiguiente) {
+                        nivelItem.classList.add('siguiente');
+                    }
+                    
+                    const disabled = isDisabled ? 'disabled' : '';
+                    const checked = isCompletado ? 'checked' : '';
+                    
+                    nivelItem.innerHTML = `
+                        <input type="checkbox" id="${id}" ${checked} ${disabled}
+                               onchange="marcarNivel('${materia}', '${vista}', ${i})">
+                        <label for="${id}">
+                            ${isCompletado ? '✓ ' : ''}Nivel ${i + 1}
+                        </label>
+                    `;
+                    
+                    grid.appendChild(nivelItem);
+                }
+                
+                content.appendChild(grid);
+                section.appendChild(header);
+                section.appendChild(content);
+                container.appendChild(section);
+                
+                // Toggle accordion
+                header.addEventListener('click', () => {
+                    content.classList.toggle('open');
+                    header.querySelector('span').textContent = content.classList.contains('open') ? '▲' : '▼';
+                });
+            });
+        }
+
+        // Marcar nivel como completado (progresivo)
+        function marcarNivel(materia, vista, nivel) {
+            // Calcular cuántos niveles están completados actualmente
+            const completados = progreso[materia][vista].filter(x => x).length;
+            
+            // Solo permitir marcar el siguiente nivel disponible
+            if (nivel === completados) {
+                progreso[materia][vista][nivel] = true;
+                guardarProgreso();
+                
+                // Recrear la vista para actualizar los estados
+                crearVistaContenido(vista);
+            }
+        }
+
+        // Navegación
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const viewName = item.dataset.view;
+                
+                // Actualizar navegación activa
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+                
+                // Mostrar vista correspondiente
+                document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+                document.getElementById(`view-${viewName}`).classList.add('active');
+            });
+        });
+
+        // PWA Installation
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.classList.add('show');
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                installBtn.classList.remove('show');
+            }
+        });
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                const CACHE_NAME = 'learning-app-v1';
+                
+                self.addEventListener('install', (event) => {
+                    self.skipWaiting();
+                });
+                
+                self.addEventListener('activate', (event) => {
+                    event.waitUntil(clients.claim());
+                });
+                
+                self.addEventListener('fetch', (event) => {
+                    event.respondWith(
+                        caches.match(event.request).then((response) => {
+                            return response || fetch(event.request);
+                        })
+                    );
+                });
+            `;
+            
+            const blob = new Blob([swCode], { type: 'application/javascript' });
+            const swUrl = URL.createObjectURL(blob);
+            
+            navigator.serviceWorker.register(swUrl);
+        }
+
+        // Manifest JSON
+        const manifest = {
+            name: "Mi Progreso Educativo",
+            short_name: "Progreso",
+            start_url: ".",
+            display: "standalone",
+            background_color: "#E8EAF6",
+            theme_color: "#6C63FF",
+            description: "Aplicación de seguimiento de progreso educativo",
+            icons: [
+                {
+                    src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%236C63FF'/%3E%3Ctext x='50' y='65' font-size='50' text-anchor='middle' fill='white'%3E📚%3C/text%3E%3C/svg%3E",
+                    sizes: "192x192",
+                    type: "image/svg+xml"
+                },
+                {
+                    src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%236C63FF'/%3E%3Ctext x='50' y='65' font-size='50' text-anchor='middle' fill='white'%3E📚%3C/text%3E%3C/svg%3E",
+                    sizes: "512x512",
+                    type: "image/svg+xml"
+                }
+            ]
+        };
+
+        const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+        const manifestURL = URL.createObjectURL(manifestBlob);
+        document.getElementById('manifest-placeholder').href = manifestURL;
+
+        // Inicializar app
+        actualizarDashboard();
+        crearVistaContenido('scorm');
+        crearVistaContenido('casos');
+        crearVistaContenido('test');
+    </script>
+</body>
+</html>
