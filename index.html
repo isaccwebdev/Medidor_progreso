@@ -356,15 +356,15 @@
     </nav>
 
     <script>
-        // Datos de materias
+        // Datos de materias con sus niveles
         const materias = [
-            'Fundamento de Hardware',
-            'Gestión de Base de Datos',
-            'Sistemas Operativos',
-            'Lenguaje de Marcas',
-            'Cloud Computing',
-            'Redes',
-            'Empleabilidad'
+            { nombre: 'Fundamento de Hardware', niveles: 4 },
+            { nombre: 'Gestión de Base de Datos', niveles: 10 },
+            { nombre: 'Sistemas Operativos', niveles: 9 },
+            { nombre: 'Lenguaje de Marcas', niveles: 8 },
+            { nombre: 'Cloud Computing', niveles: 10 },
+            { nombre: 'Redes', niveles: 8 },
+            { nombre: 'Empleabilidad', niveles: 5 }
         ];
 
         const vistas = ['scorm', 'casos', 'test'];
@@ -374,11 +374,11 @@
 
         // Inicializar estructura si no existe
         materias.forEach(materia => {
-            if (!progreso[materia]) {
-                progreso[materia] = {
-                    scorm: Array(10).fill(false),
-                    casos: Array(10).fill(false),
-                    test: Array(10).fill(false)
+            if (!progreso[materia.nombre]) {
+                progreso[materia.nombre] = {
+                    scorm: Array(materia.niveles).fill(false),
+                    casos: Array(materia.niveles).fill(false),
+                    test: Array(materia.niveles).fill(false)
                 };
             }
         });
@@ -390,9 +390,11 @@
         }
 
         // Calcular progreso de una materia en una vista
-        function calcularProgreso(materia, vista) {
-            const completados = progreso[materia][vista].filter(x => x).length;
-            return { completados, total: 10, porcentaje: (completados / 10) * 100 };
+        function calcularProgreso(materiaNombre, vista) {
+            const completados = progreso[materiaNombre][vista].filter(x => x).length;
+            const materia = materias.find(m => m.nombre === materiaNombre);
+            const total = materia.niveles;
+            return { completados, total, porcentaje: (completados / total) * 100 };
         }
 
         // Actualizar Dashboard
@@ -404,18 +406,18 @@
                 const card = document.createElement('div');
                 card.className = 'card';
                 
-                const progresoScorm = calcularProgreso(materia, 'scorm');
-                const progresoCasos = calcularProgreso(materia, 'casos');
-                const progresoTest = calcularProgreso(materia, 'test');
+                const progresoScorm = calcularProgreso(materia.nombre, 'scorm');
+                const progresoCasos = calcularProgreso(materia.nombre, 'casos');
+                const progresoTest = calcularProgreso(materia.nombre, 'test');
 
                 card.innerHTML = `
-                    <h2>${materia}</h2>
+                    <h2>${materia.nombre}</h2>
                     <div class="progress-bars">
                         <div class="progress-bar-container">
                             <div class="progress-bar-label">SCORM</div>
                             <div class="progress-bar">
                                 <div class="progress-fill" style="width: ${progresoScorm.porcentaje}%">
-                                    ${progresoScorm.completados}/10
+                                    ${progresoScorm.completados}/${progresoScorm.total}
                                 </div>
                             </div>
                         </div>
@@ -423,7 +425,7 @@
                             <div class="progress-bar-label">Casos Prácticos</div>
                             <div class="progress-bar">
                                 <div class="progress-fill" style="width: ${progresoCasos.porcentaje}%">
-                                    ${progresoCasos.completados}/10
+                                    ${progresoCasos.completados}/${progresoCasos.total}
                                 </div>
                             </div>
                         </div>
@@ -431,7 +433,7 @@
                             <div class="progress-bar-label">Test</div>
                             <div class="progress-bar">
                                 <div class="progress-fill" style="width: ${progresoTest.porcentaje}%">
-                                    ${progresoTest.completados}/10
+                                    ${progresoTest.completados}/${progresoTest.total}
                                 </div>
                             </div>
                         </div>
@@ -454,7 +456,7 @@
                 const header = document.createElement('div');
                 header.className = 'materia-header';
                 header.innerHTML = `
-                    <h3>${materia}</h3>
+                    <h3>${materia.nombre}</h3>
                     <span>▼</span>
                 `;
                 
@@ -465,9 +467,9 @@
                 grid.className = 'niveles-grid';
                 
                 // Calcular cuántos niveles están completados
-                const completados = progreso[materia][vista].filter(x => x).length;
+                const completados = progreso[materia.nombre][vista].filter(x => x).length;
                 
-                for (let i = 0; i < 10; i++) {
+                for (let i = 0; i < materia.niveles; i++) {
                     const nivelItem = document.createElement('div');
                     nivelItem.className = 'nivel-item';
                     
@@ -487,7 +489,7 @@
                     
                     nivelItem.innerHTML = `
                         <input type="checkbox" id="${id}" ${checked} ${disabled}
-                               onchange="marcarNivel('${materia}', '${vista}', ${i})">
+                               onchange="marcarNivel('${materia.nombre}', '${vista}', ${i})">
                         <label for="${id}">
                             ${isCompletado ? '✓ ' : ''}Nivel ${i + 1}
                         </label>
